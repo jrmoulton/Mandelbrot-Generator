@@ -18,7 +18,7 @@ int main() {
     std::default_random_engine generator(seed);
     std::uniform_int_distribution<int> distribution(1, 3);
     int choice = distribution(generator);
-    choice = 2;
+    choice = 1;
     std::array<unsigned char, 14> bmp = {
         0x42, 0x4D, 0x76, 0xF3, 0x89, 0x06, 0x00,
         0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00,
@@ -59,9 +59,9 @@ int main() {
             count += iter;
             switch (choice) {
                 case 1:
-                    blue = 255 - ((double)iter / ITERATIONS) * 255.0;
-                    green = blue;
-                    red = blue;
+                    blue = std::sin(255 - ((double)iter / ITERATIONS)) * 255.0;
+                    green = blue + (std::sin(blue) * 255);
+                    red = std::cos(green) * 255;
                     break;
                 case 2:
                     green = ((((double)iter / ITERATIONS)) * 255.0) * 3;
@@ -70,9 +70,15 @@ int main() {
                     red = std::sin(blue / 3) * 255;
                     break;
                 case 3:
-                    blue = ((double)iter / ITERATIONS) * 255.0;
+                    tempint = std::pow(((double)iter / ITERATIONS) * 255.0, 2);
+                    blue = tempint;
                     green = blue;
                     red = blue;
+                    break;
+                case 4:
+                    blue = std::sin(255 - ((double)iter / ITERATIONS)) * 255.0;
+                    green = blue + (std::sin(blue) * 255);
+                    red = green;
                     break;
             }
             image_data.push_back(blue);
@@ -80,7 +86,7 @@ int main() {
             image_data.push_back((unsigned char)red);
         }
     }
-    std::cerr << "\rLines remaining: " << 0 << " out of " << LENGTH << " "
+    std::cerr << "\rLines remaining: " << 0 << " out of " << HEIGHT << " "
               << std::flush << std::endl;
 
     // Average number of iterations per pixel
