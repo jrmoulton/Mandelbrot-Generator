@@ -1,19 +1,24 @@
 
 
 #include <array>
+#include <chrono>
 #include <cmath>
-#include <complex>
 #include <fstream>
 #include <iostream>
-#include <mutex>
-#include <thread>
+#include <random>
 #include <vector>
 
 #define LENGTH 8000.0
 #define HEIGHT 4571.0
-#define ITERATIONS 100.0
+#define ITERATIONS 1000.0
 
 int main() {
+    unsigned int seed =
+        std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine generator(seed);
+    std::uniform_int_distribution<int> distribution(1, 3);
+    int choice = distribution(generator);
+    choice = 2;
     std::array<unsigned char, 14> bmp = {
         0x42, 0x4D, 0x76, 0xF3, 0x89, 0x06, 0x00,
         0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00,
@@ -31,9 +36,9 @@ int main() {
 
     std::vector<unsigned char> image_data;
     int count = 0;
-    unsigned char temp;
+    unsigned char blue, green, red;
     double x0, y0, x, y, xtemp;
-    int iter = 0;
+    int iter = 0, tempint;
     for (int i = 0; i < HEIGHT; i++) {
         if (i % 50 == 0) {
             std::cerr << "\rLines remaining: " << HEIGHT - i << " out of "
@@ -52,10 +57,27 @@ int main() {
                 iter += 1;
             }
             count += iter;
-            temp = 255 - ((double)iter / ITERATIONS) * 255.0;
-            image_data.push_back(temp);
-            image_data.push_back((unsigned char)temp);
-            image_data.push_back((unsigned char)temp);
+            switch (choice) {
+                case 1:
+                    blue = 255 - ((double)iter / ITERATIONS) * 255.0;
+                    green = blue;
+                    red = blue;
+                    break;
+                case 2:
+                    green = ((((double)iter / ITERATIONS)) * 255.0) * 3;
+                    tempint = green * 4;
+                    blue = tempint > 255 ? 255 : tempint;
+                    red = std::sin(blue / 3) * 255;
+                    break;
+                case 3:
+                    blue = ((double)iter / ITERATIONS) * 255.0;
+                    green = blue;
+                    red = blue;
+                    break;
+            }
+            image_data.push_back(blue);
+            image_data.push_back((unsigned char)green);
+            image_data.push_back((unsigned char)red);
         }
     }
     std::cerr << "\rLines remaining: " << 0 << " out of " << LENGTH << " "
@@ -64,7 +86,8 @@ int main() {
     // Average number of iterations per pixel
     std::cout << ((double)count) / ((double)(LENGTH * HEIGHT)) << std::endl;
 
-    std::ofstream ofs("test.bmp", std::ios::out | std::ios::binary);
+    std::ofstream ofs("mandelbrot_" + std::to_string(choice) + ".bmp",
+                      std::ios::out | std::ios::binary);
     if (ofs.is_open()) {
         for (auto i = bmp.begin(); i != bmp.end(); i++) {
             ofs << *i;
@@ -72,7 +95,7 @@ int main() {
         for (auto i = dib.begin(); i != dib.end(); i++) {
             ofs << *i;
         }
-        for (int i = 0; i != image_data.size(); i++) {
+        for (int i = 0; i != (int)image_data.size(); i++) {
             ofs << image_data[i];
         }
     } else {
