@@ -4,7 +4,7 @@
 # Compiler flags
 #
 CC = g++
-CPPFLAGS = -std=gnu++14 -Wall -Werror -Wextra -Wshadow
+CPPFLAGS = -std=gnu++17 -Wall -Werror -Wextra -Wshadow
 
 #
 # Project files
@@ -32,7 +32,7 @@ DBGCFLAGS = -g -O0 -DDEBUG
 RELDIR = target/release
 RELEXE = $(RELDIR)/$(EXE)
 RELOBJS = $(patsubst $(SRCDIR)/%.$(ftype), $(RELDIR)/%.o, $(SRCS))
-RELCFLAGS = -O3 -DNDEBUG
+RELCFLAGS = -Og -DNDEBUG
 
 .PHONY: all clean debug release remake run
 
